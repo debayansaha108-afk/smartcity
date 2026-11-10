@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCity | Management System</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="fa-solid fa-city"></i>
+            </div>
+            <div>
+                <h2>SmartCity</h2>
+                <small>Management Portal</small>
+            </div>
+        </div>
+
+        <p class="menu-label">MAIN MENU</p>
+
+        <nav>
+            <button class="nav-link active" data-page="dashboard">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
+            </button>
+
+            <button class="nav-link" data-page="services">
+                <i class="fa-solid fa-building"></i> City Services
+            </button>
+
+            <button class="nav-link" data-page="complaints">
+                <i class="fa-solid fa-file-circle-exclamation"></i> Complaints
+            </button>
+
+            <button class="nav-link" data-page="map">
+                <i class="fa-solid fa-map-location-dot"></i> City Map
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="system-status">
+                <span class="online-dot"></span>
+                <div>
+                    <strong>System Online</strong>
+                    <small>MongoDB Connected</small>
+                </div>
+            </div>
+
+            <p class="sidebar-footer">SmartCity Project © 2026</p>
+        </div>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <h2 id="pageTitle">Dashboard</h2>
+                <p>Smart City Administration Portal</p>
+            </div>
+
+            <div class="top-actions">
+                <span class="admin-badge">
+                    <i class="fa-solid fa-user-shield"></i>
+                    Administrator
+                </span>
+            </div>
+        </header>
+
+
+        <!-- DASHBOARD -->
+        <section class="page active" id="dashboard">
+
+            <div class="welcome">
+                <div>
+                    <h1>Welcome to SmartCity 👋</h1>
+                    <p>Monitor and manage your city's resources and services.</p>
+                </div>
+
+                <button class="primary-btn" onclick="openServiceModal()">
+                    <i class="fa-solid fa-plus"></i> Add Service
+                </button>
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <p>Total Services</p>
+                    <h2 id="totalServices">0</h2>
+                    <small>Registered city services</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <p>Active Services</p>
+                    <h2 id="activeServices">0</h2>
+                    <small>Currently operational</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fa-solid fa-file-circle-exclamation"></i>
+                    </div>
+                    <p>Total Complaints</p>
+                    <h2 id="totalComplaints">0</h2>
+                    <small>Citizen complaints</small>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <p>Pending Complaints</p>
+                    <h2 id="pendingComplaints">0</h2>
+                    <small>Awaiting resolution</small>
+                </div>
+
+            </div>
+
+
+            <div class="content-grid">
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Complaint Analytics</h3>
+                            <p>Complaint status overview</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="complaintChart"></canvas>
+                    </div>
+                </div>
+
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Service Categories</h3>
+                            <p>Distribution of city services</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="serviceChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="panel recent-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Recent Complaints</h3>
+                        <p>Latest citizen reports</p>
+                    </div>
+
+                    <button class="text-btn" onclick="showPage('complaints')">
+                        View All <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Citizen</th>
+                                <th>Complaint</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentComplaints">
+                            <tr><td colspan="4">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- SERVICES -->
+        <section class="page" id="services">
+
+            <div class="section-header">
+                <div>
+                    <h1>City Services</h1>
+                    <p>Manage all registered city resources.</p>
+                </div>
+
+                <button class="primary-btn" onclick="openServiceModal()">
+                    <i class="fa-solid fa-plus"></i> Add New Service
+                </button>
+            </div>
+
+            <div class="panel">
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="serviceSearch"
+                           placeholder="Search services...">
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service Name</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="serviceTable">
+                            <tr><td colspan="5">Loading services...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- COMPLAINTS -->
+        <section class="page" id="complaints">
+
+            <div class="section-header">
+                <div>
+                    <h1>Citizen Complaints</h1>
+                    <p>Register and track public complaints.</p>
+                </div>
+
+                <button class="primary-btn" onclick="openComplaintModal()">
+                    <i class="fa-solid fa-plus"></i> Register Complaint
+                </button>
+            </div>
+
+            <div class="panel">
+
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="complaintSearch"
+                           placeholder="Search complaints...">
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Citizen</th>
+                                <th>Complaint</th>
+                                <th>Category</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="complaintTable">
+                            <tr><td colspan="6">Loading complaints...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- MAP -->
+        <section class="page" id="map">
+
+            <div class="section-header">
+                <div>
+                    <h1>City Service Map</h1>
+                    <p>Explore registered service locations.</p>
+                </div>
+            </div>
+
+            <div class="panel map-panel">
+                <div id="cityMap"></div>
+                <p class="map-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Locations are plotted using OpenStreetMap geocoding.
+                    Results depend on the address entered.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+
+<!-- SERVICE MODAL -->
+<div class="modal" id="serviceModal">
+    <div class="modal-box">
+
+        <div class="modal-heading">
+            <h2 id="serviceModalTitle">Add City Service</h2>
+            <button class="close-btn" onclick="closeModal('serviceModal')">
+                &times;
+            </button>
+        </div>
+
+        <form id="serviceForm">
+
+            <input type="hidden" id="serviceId">
+
+            <label>Service Name</label>
+            <input type="text" id="serviceName" required
+                   placeholder="Example: City Hospital">
+
+            <label>Category</label>
+            <select id="serviceCategory" required>
+                <option value="">Select Category</option>
+                <option>Healthcare</option>
+                <option>Transportation</option>
+                <option>Education</option>
+                <option>Water Supply</option>
+                <option>Electricity</option>
+                <option>Waste Management</option>
+                <option>Public Safety</option>
+                <option>Other</option>
+            </select>
+
+            <label>Location</label>
+            <input type="text" id="serviceLocation" required
+                   placeholder="Example: Jayanagar, Bengaluru">
+
+            <label>Status</label>
+            <select id="serviceStatus">
+                <option>Active</option>
+                <option>Maintenance</option>
+                <option>Inactive</option>
+            </select>
+
+            <label>Description</label>
+            <textarea id="serviceDescription"
+                      placeholder="Enter service details"></textarea>
+
+            <button class="primary-btn full-btn" type="submit">
+                Save Service
+            </button>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- COMPLAINT MODAL -->
+<div class="modal" id="complaintModal">
+    <div class="modal-box">
+
+        <div class="modal-heading">
+            <h2>Register Complaint</h2>
+
+            <button class="close-btn"
+                    onclick="closeModal('complaintModal')">
+                &times;
+            </button>
+        </div>
+
+        <form id="complaintForm">
+
+            <label>Citizen Name</label>
+            <input type="text" id="citizenName" required>
+
+            <label>Complaint Title</label>
+            <input type="text" id="complaintTitle" required>
+
+            <label>Category</label>
+            <select id="complaintCategory" required>
+                <option value="">Select Category</option>
+                <option>Water Supply</option>
+                <option>Electricity</option>
+                <option>Road Maintenance</option>
+                <option>Waste Management</option>
+                <option>Transportation</option>
+                <option>Public Safety</option>
+                <option>Other</option>
+            </select>
+
+            <label>Location</label>
+            <input type="text" id="complaintLocation" required
+                   placeholder="Enter area or address">
+
+            <label>Description</label>
+            <textarea id="complaintDescription" required></textarea>
+
+            <button class="primary-btn full-btn" type="submit">
+                Submit Complaint
+            </button>
+
+        </form>
+    </div>
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="app.js"></script>
+
+</body>
+</html>
